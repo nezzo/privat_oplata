@@ -42,27 +42,30 @@ class ModelPaymentprivatoplata extends Model {
 		return $method_data;
 	}
 
+	/*Получаем данные о товаре из таблице (при клике add cart которые заносятся) воможно нужен не price  a total*/
 	public function order_product_privat_oplata($order_id){
 		$sql_query = "
 				SELECT product_id,name,price,quantity
 				FROM oc_order_product
-				WHERE order_id = '{$order_id}'
-				
-		";
+				WHERE order_id = '{$order_id}'";
+
 
 		$query = $this->db->query($sql_query);
 
-		$row = mysql_fetch_assoc($query);
+		$data_privat_oplata=array();
 
-		$data_privat_oplata = array(
-			'name'		 => $row['name'],
-			'price' 	 => $row['price'],
-			'product_id' => $row['product_id'],
-			'quantity'   => $row['quantity']
+		foreach ($query->rows as $data_privat) {
+			$data_privat_oplata[] = array(
+				'name' => $data_privat['name'],
+				'price'=> $data_privat['price'],
+				'product_id'=> $data_privat['product_id'],
+				'quantity'=> $data_privat['quantity']
 			);
+		}
 
-		return "11";//$data_privat_oplata;
+		return $data_privat_oplata;
 
 	}
+
 
 }

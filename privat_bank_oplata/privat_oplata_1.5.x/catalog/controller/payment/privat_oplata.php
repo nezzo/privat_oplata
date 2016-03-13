@@ -15,9 +15,10 @@ class ControllerPaymentprivatoplata extends Controller {
 
         $order_info = $this->model_checkout_order->getOrder($order_id);
 
+
         $description = 'Order #'.$order_id;
 
-        $order_id .= '#'.time();
+       // $order_id .= '#'.time();
         $result_url = $this->url->link('checkout/success', '', 'SSL');
         $server_url = $this->url->link('payment/privat_oplata/server', '', 'SSL');
 
@@ -55,11 +56,17 @@ class ControllerPaymentprivatoplata extends Controller {
         */
 
       //  $count = $this->cart->countProducts();
-        $data_order = $this->model_privat_oplata->order_product_privat_oplata($order_id);
-        var_dump($data_order);
-        $count = $data_order['count'];
-        $price = $data_order['price'];
-        $name = $data_order['name'];
+
+        $data_order = $this->model_payment_privat_oplata->order_product_privat_oplata($order_id);
+
+
+
+
+
+        $count = $data_order['0']['quantity'];
+        $price = $data_order['0']['price'];
+        $name = $data_order['0']['name'];
+
 
 
         $send_data = array('storeId'    => $id_shop,
@@ -79,6 +86,8 @@ class ControllerPaymentprivatoplata extends Controller {
                        // "redirectUrl"=> "http://shop.com/redirect", сюда перекинет клиента после удачно совершенее сделки (или просто перекинет)
                         "signature"=> ""
                           );
+
+
                           
         $data = base64_encode(json_encode($send_data));
         $products_string = "";
@@ -95,6 +104,7 @@ class ControllerPaymentprivatoplata extends Controller {
         
         $this->template = $this->config->get('config_template').'/template/payment/privat_oplata.tpl';
 
+        /** надо обязательно указать все пути  */
         if (!file_exists(DIR_TEMPLATE.$this->template)) {
             $this->template = 'default/template/payment/privat_opata.tpl';
         }
