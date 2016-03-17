@@ -5,206 +5,153 @@ class ControllerPaymentprivatoplata extends Controller {
      *
      * @return void
      */
-    protected function index()
+    public function index()
     {
         $this->load->model('checkout/order');
         $this->load->model('payment/privat_oplata');
 
         $order_id = $this->session->data['order_id'];
+        $data_order = $this->model_payment_privat_oplata->order_product_privat_oplata($order_id);
+
+        $data_deal = $this->signature($data_order);
 
 
         $order_info = $this->model_checkout_order->getOrder($order_id);
+    }
+
+    public function  answer_generate($data_answer){
+        $this->load->model('checkout/order');
+        $this->load->model('payment/privat_oplata');
+
+        $merchantType="PP";
+        $parts_cookie ="6";
 
 
-        $description = 'Order #'.$order_id;
 
-       // $order_id .= '#'.time();
-        $result_url = $this->url->link('checkout/success', '', 'SSL');
-        $server_url = $this->url->link('payment/privat_oplata/server', '', 'SSL');
+        $signature = base64_encode(hex2bin(sha1($pass_shop.$id_shop.$order_id.$pass_shop)));
 
-        $id_shop = $this->config->get('privat_oplata_id_shop');
-        $pass_shop = $this->config->get('privat_oplata_pass_shop');
-        $type = 'buy';
-        //$currency = $order_info['currency_code'];
-        $currency = '980';
-        $amount = $this->currency->format(
-            $order_info['total'],
-            $order_info['currency_code'],
-            $order_info['currency_value'],
-            false
-        );
-        $version  = '3';
-        	
 
-       /* $parts_cookie = $_COOKIE['cookie_select'];
-
-        if ($parts_cookie != null){
-        $parts_cookie = $_COOKIE['cookie_select'];
- 		 }else{
- 		  $parts_cookie ="6";
-
- 		 }
-
- 		 $merchantType="PP";
-
-        //$language = $this->language->get('code');
-
-        //$language = $language == 'ru' ? 'ru' : 'en';
         /*
-        $pay_way  = $this->config->get('liqpay_pay_way');
-        $language = $this->config->get('liqpay_language');
+        $send_data = array(
+            'storeId'    => $id_shop,
+            'orderId'     => $order_id,
+            'amount'      => $amount,
+            //  'currency'    => $currency,
+            'partsCount'  => "6", //количество частей на сколько делиться покупка
+            'merchantType'=> "PP",//$merchantType,
+            'redirectUrl'  => $result_url,
+            // 'responseUrl'  => $server_url,
+            'products'=>array(
+                'name' => $name,
+                'count'=> $count,
+                'price'=> $price
+            ),
+            // "responseUrl"=> "http://shop.com/response", сюда отправиться результат сделки
+            // "redirectUrl"=> "http://shop.com/redirect", сюда перекинет клиента после удачно совершенее сделки (или просто перекинет)
+            "signature"=> $signature
+        )
         */
 
-      //  $count = $this->cart->countProducts();
-
-        $data_order = $this->model_payment_privat_oplata->order_product_privat_oplata($order_id);
+    return $signature;
 
 
+    }
 
 
+    public function signature($data_order){
+    $this->load->model('checkout/order');
+    $this->load->model('payment/privat_oplata');
+    $order_id = $this->session->data['order_id'];
 
-        $count = $data_order['0']['quantity'];
-        $price = $data_order['0']['price'];
-        $name = $data_order['0']['name'];
+        $partsCount = 6;
+    $merchantType= "PP';
 
+        $count = $data_order[0]['quantity'];
+        $price = $data_order[0]['price'];
+        $name = $data_order[0]['name'];
 
-
-        $send_data = array('storeId'    => $id_shop,
-        				  'orderId'     => $order_id,
-                          'amount'      => $amount,
-                          'currency'    => $currency,
-                          'partsCount'  => "6", //количество частей на сколько делиться покупка
-                          'merchantType'=> "PP",//$merchantType,
-                          'redirectUrl'  => $result_url,
-                        // 'responseUrl'  => $server_url,
-                          'products'=>array(
-              							'name' => $name,
-              							'count'=> $count,
-              							'price'=> $price
-              							),
-                       // "responseUrl"=> "http://shop.com/response", сюда отправиться результат сделки
-                       // "redirectUrl"=> "http://shop.com/redirect", сюда перекинет клиента после удачно совершенее сделки (или просто перекинет)
-                        "signature"=> ""
-                          );
+        $products_string = $name.$count.$price;
 
 
-                          
-        $data = base64_encode(json_encode($send_data));
-        $products_string = "";
+    $signatureStr=$pass_shop.
+                  $id_shop.
+                  $order_id.
+                  $amount.
+                  $order_info[currency_code].
+                  $partsCount.
+                  $merchantType.
+                  $products_string.
+                  $pass_shop;
 
-        $products_string = $products_string.($name.$count.$price);
+        $signature = base64_encode(hex2bin(SHA1($signatureStr)));
 
-        $signature = base64_encode(hex2bin(sha1($pass_shop.$id_shop.$order_id.(float)$amount.$currency.$parts_cookie.$merchantType.$result_url.$products_string.$pass_shop)));
-
-        $this->data['action']         = $this->config->get('privat_oplata_action');
-        $this->data['signature']      = $signature;
-        $this->data['data']           = $data;
-        $this->data['button_confirm'] = 'Оплатить';
-        $this->data['url_confirm']    = $this->url->link('payment/privat_oplata/confirm');
-        
-        $this->template = $this->config->get('config_template').'/template/payment/privat_oplata.tpl';
-
-        /** надо обязательно указать все пути  */
-        if (!file_exists(DIR_TEMPLATE.$this->template)) {
-            $this->template = 'default/template/payment/privat_opata.tpl';
+        return $signature;
         }
 
-        $this->render();
-    }
+        private function curlPost($url, $request){
+        try{
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS,$request);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt ($ch, CURLOPT_HEADER, 0);
+            curl_setopt($ch,CURLOPT_CUSTOMREQUEST,'POST');
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array (
+            'Accept: application/json',
+            'Accept-Encoding: UTF-8',
+            'Content-Type: application/json; charset=UTF-8'));
+
+         $output=curl_exec($ch);
 
 
-    /**
-     * Confirm action
-     *
-     * @return void
-     */
-    public function confirm()
-    {
-        $this->load->model('checkout/order'); echo $this->session->data['order_id'];
-        $this->model_checkout_order->confirm($this->session->data['order_id'], $this->config->get('config_order_status_id'), 'unpaid');
-    }
+        $curl_errno = curl_errno($ch);
+        $curl_error = curl_error($ch);
+        $aInfo = @curl_getinfo($ch);
 
+        curl_close($ch);
 
-    /**
-     * Check and return posts data
-     *
-     * @return array
-     */
-    private function getPosts()
-    {
-        $success =
-            isset($_POST['data']) &&
-            isset($_POST['signature']);
-
-        if ($success) {
-            return array(
-                $_POST['data'],
-                $_POST['signature'],
-            );
+        if($curl_errno!=0){
+            $this->log->write('PRIVATBANK_PAYMENTPARTS_PP :: CURL failed ' . $curl_error . '(' . $curl_errno . ')');
+            return $this->language->get('error_curl');
         }
-        return array();
+        if($aInfo[http_code]!='200'){
+            $this->log->write('PRIVATBANK_PAYMENTPARTS_PP :: HTTP failed ' . $aInfo[http_code] . '(' . $response . ')');
+            return $this->language->get('error_curl');
+        }
+
+        return json_decode($response,true);
+
+        }catch(Exception $e){
+        return false;
+        }
     }
 
 
-    /**
-     * get real order ID
-     *
-     * @return string
-     */
-    public function getRealOrderID($order_id)
-    {
-        $real_order_id = explode('#', $order_id);
-        return $real_order_id[0];
+    public function sendDataDeal(){
+    $this->load->model('checkout/order');
+    $data_order = $this->model_payment_privat_oplata->order_product_privat_oplata($order_id);
+    $products = array(
+        'name'=>$data_order[0]['name'],
+        'count'=>$data_order[0]['quantity'],
+        'price'=>data_order[0]['price']);
+
+    $requestDial = json_encode($products);
+        $url = 'https://payparts2.privatbank.ua/ipp/v2/payment/create';
+
+        $responseResDeal = $this->curlPost($url,$requestDial);
+
+
+    }
+
+    public function callback() {
+    $requestPostRaw = file_get_contents('php://input');
+    $requestArr = json_decode(trim($requestPostRaw),true);
+    $this->load->model('checkout/order');
+    $orderIdArr = explode('_',$requestArr[orderId]);
+    $order_id = $orderIdArr[1];
+        $comment = $requestArr[message];
+
     }
 
 
-    /**
-     * Server action
-     *
-     * @return void
-     */
-    public function server()
-    {
-        if (!$posts = $this->getPosts()) { die('Posts error'); }
-
-        list(
-            $data,
-            $signature
-        ) = $posts;
-        
-        if(!$data || !$signature) {die("No data or signature");}
-
-        $parsed_data = json_decode(base64_decode($data), true);
-
-        $id_shop  			 = $parsed_data['id_shop'];
-        $order_id            = $parsed_data['order_id'];
-        $status              = $parsed_data['status'];
-        $sender_phone        = $parsed_data['sender_phone'];
-        $amount              = $parsed_data['amount'];
-        $currency            = $parsed_data['currency'];
-        $transaction_id      = $parsed_data['transaction_id'];
-
-        $real_order_id = $this->getRealOrderID($order_id);
-
-        if ($real_order_id <= 0) { die("Order_id real_order_id < 0"); }
-
-        $this->load->model('checkout/order');
-        if (!$this->model_checkout_order->getOrder($real_order_id)) { die("Order_id fail");}
-
-        $id_shop = $this->config->get('id_shop');
-        $pass_shop  = $this->config->get('pass_shop');
-
-        $signature = base64_encode(hex2bin(sha1($pass_shop.$id_shop.$order_id.$amount.$currency.$parts_cookie.$merchantType.$result_url.$products_string.$pass_shop)));
-
-        if ($signature  != $generated_signature) { die("Signature secure fail"); }
-        if ($id_shop != $id_shop) { die("id_shop secure fail"); }
-
-        if ($status == 'success') {
-            $this->model_checkout_order->update($real_order_id, $this->config->get('privat_oplata_order_status_id'),'paid');
-        } else{
-            $this->confirm();
-        } 
-
-       
-    }
 }
