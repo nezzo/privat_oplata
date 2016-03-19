@@ -157,7 +157,8 @@ class ControllerPaymentprivatoplata extends Controller {
 
 
 
-		$this->template = 'payment/privat_oplata.tpl';
+
+		$this->template = $this->url->link('payment/privat_oplata', 'token=' . $this->session->data['token'], 'SSL');
 		$this->children = array(
 			'common/header',
 			'common/footer'

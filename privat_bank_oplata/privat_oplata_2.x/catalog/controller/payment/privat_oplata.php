@@ -33,7 +33,7 @@ class ControllerPaymentprivatoplata extends Controller {
         );
         $version  = '3';
         	
-
+/*
         $parts_cookie = $_COOKIE['cookie_select'];
 
         if ($parts_cookie != null){
@@ -42,6 +42,7 @@ class ControllerPaymentprivatoplata extends Controller {
  		  $parts_cookie ="6";
 
  		 }
+     */
 
  		 $merchantType="PP";
 

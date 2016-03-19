@@ -1,20 +1,14 @@
 <?php //if ($testmode) { ?>
 <!--  <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> <?php echo $text_testmode; ?></div>-->
 <?php //} ?>
-
 <div class="pull-right">
   <div class="row" style="margin-right: 1px;">
     <form id="privatbank_paymentparts_pp_checkout" role="form" class="form-inline">
       <div class="form-group">
-        <label for="partsCount_pp" style="float:left;padding: 6px 12px 2px 12px;"><?php echo $text_label_partsCount; ?></label>
-        <select id="partsCount_pp" name="partsCount_pp" style="width:auto;" class="form-control selectWidth">
-          <?php foreach ($partsCounts as $partsCount) { ?>
-          <option><?php echo $partsCount; ?></option>
-          <?php } ?>
-        </select>
+        <label for="partsCount_pp" style="float:left;padding: 6px 12px 2px 12px;"><?php echo "PP"; ?></label>
       </div>
       <div class="btn-group">
-        <input type="submit" value="<?php echo $button_confirm; ?>" class="btn btn-primary" />
+        <input type="submit" value="<?php echo 'PP'; ?>" class="btn btn-primary" />
       </div>
     </form>
   </div>
@@ -29,7 +23,7 @@
 
       $.ajax({
         type: 'POST',
-        url: '<?php echo $action; ?>',
+        url: 'index.php?route=payment/privat_oplata/callback',
         dataType: 'json',
         data: partsCounArr,
         success: function(data){ // сoбытиe пoслe удaчнoгo oбрaщeния к сeрвeру и пoлучeния oтвeтa
@@ -57,7 +51,7 @@
         }
 //               complete: function(data) { // сoбытиe пoслe любoгo исхoдa
 //                    form.find('input[type="submit"]').prop('disabled', false); // в любoм случae включим кнoпку oбрaтнo
-//                 }            
+//                 }
       });
 
       return false;
