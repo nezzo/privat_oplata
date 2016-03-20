@@ -19,11 +19,11 @@
   $(document).ready(function(){
     $("#privatbank_paymentparts_pp_checkout").submit(function(){
       var error = false;
-      partsCounArr = {partsCount: $('#partsCount_pp').val()};
+      partsCounArr = {partsCount:6};
 
       $.ajax({
         type: 'POST',
-        url: 'index.php?route=payment/privat_oplata/callback',
+        url: '<?php echo $action;?>',
         dataType: 'json',
         data: partsCounArr,
         success: function(data){ // сoбытиe пoслe удaчнoгo oбрaщeния к сeрвeру и пoлучeния oтвeтa

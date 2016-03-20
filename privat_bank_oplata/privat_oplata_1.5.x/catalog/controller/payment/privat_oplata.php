@@ -3,13 +3,17 @@ class ControllerPaymentprivatoplata extends Controller {
     public function index() {
         $this->language->load('payment/privat_oplata');
 
-       //        $data['text_testmode'] = $this->language->get('text_testmode');
+        // $this->callback();
+
+        $this->sendDataDeal();
+
+        //        $data['text_testmode'] = $this->language->get('text_testmode');
         $data['button_confirm'] = $this->language->get('button_confirm');
 
-      /* в эту переменную нужно передать количесто (насколько будет делиться платеж)*/
-         $data['text_label_partsCount'] = $this->language->get('text_label_partsCount');
+        /* в эту переменную нужно передать количесто (насколько будет делиться платеж)*/
+        $data['text_label_partsCount'] = $this->language->get('text_label_partsCount');
 
-       $partsCount = 'PP';//$this->config->get('privatbank_paymentparts_pp_merchantType');
+        $partsCount = $this->config->get('privatbank_paymentparts_pp_merchantType');
         $partsCountArr = array();
         for($i=$partsCount;$i>=2;$i--){
             $partsCountArr[] = $i;
@@ -38,12 +42,12 @@ class ControllerPaymentprivatoplata extends Controller {
         if ($order_info) {
 
             if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/privat_oplata.tpl')) {
-               //return $this->template = $this->config->get('config_template') . '/template/payment/privat_oplata.tpl';
+                 //  return $this->template = $this->config->get('config_template') . '/template/payment/privat_oplata.tpl';
 
                 $this->template ='default/template/payment/privat_oplata.tpl';
 
             } else {
-                 $this->template ='default/template/payment/privat_oplata.tpl';
+                $this->template ='default/template/payment/privat_oplata.tpl';
             }
         }
         $this->render();
@@ -60,11 +64,12 @@ class ControllerPaymentprivatoplata extends Controller {
         $storeId = $this->config->get('privat_oplata_id_shop');
 
         $signatureAnswerStr = $passwordStore.
-                              $storeId.
-                              $dataAnsweArr['orderId'].
-                                $dataAnsweArr['paymentState'].
-                              $dataAnsweArr['message'].
-                              $passwordStore;
+            $storeId.
+            $dataAnsweArr['orderId'].
+            $dataAnsweArr['paymentState'].
+            $dataAnsweArr['message'].
+            $passwordStore;
+
 
         $signatureAnswer = base64_encode(hex2bin(SHA1($signatureAnswerStr)));
 
@@ -80,103 +85,103 @@ class ControllerPaymentprivatoplata extends Controller {
         $signature ='';
         $decimalSeparatorArr = array(",", ".");
         foreach ($dataArr['products'] as $key_product=>$val_product) {
-              if(!fmod(round($val_product['price'],2),1)){
+            if(!fmod(round($val_product['price'],2),1)){
                 $valProductPrice = round($val_product['price'],2).'00';
-              }else{
+            }else{
                 $valProductPrice = round($val_product['price'],2);
                 $valProductPriceRateArr = explode('.', $valProductPrice);
                 if(strlen($valProductPriceRateArr[1])==1){
-                   $valProductPrice = $valProductPrice.'0';
+                    $valProductPrice = $valProductPrice.'0';
                 }
-              }
-              $productPrice = str_replace($decimalSeparatorArr,'',$valProductPrice);
+            }
+            $productPrice = str_replace($decimalSeparatorArr,'',$valProductPrice);
 
-              $productsString .= $val_product['name'].$val_product['count'].$productPrice;
+            $productsString .= $val_product['name'].$val_product['count'].$productPrice;
         }
 
         if(!fmod(round($dataArr['amount'],2),1)){
             $dataArrAmount = round($dataArr['amount'],2).'00';
         }else{
-             $dataArrAmount = round($dataArr['amount'],2);
-             $dataArrAmountRateArr = explode('.', $dataArrAmount);
-             if(strlen($dataArrAmountRateArr[1])==1){
+            $dataArrAmount = round($dataArr['amount'],2);
+            $dataArrAmountRateArr = explode('.', $dataArrAmount);
+            if(strlen($dataArrAmountRateArr[1])==1){
                 $dataArrAmount = $dataArrAmount.'0';
-             }
+            }
         }
         $amountStr = str_replace($decimalSeparatorArr,'',$dataArrAmount);
         $passwordStore = $this->config->get('privat_oplata_pass_shop');
 
         $signatureStr = $passwordStore.
-                        $dataArr['storeId'].
-                        $dataArr['orderId'].
-                        $amountStr.
-                        $dataArr['currency'].
-                        $dataArr['partsCount'].
-                        $dataArr['merchantType'].
-                        $dataArr['1responseUrl'].
-                        $dataArr['redirectUrl'].
-                        $productsString.
-                        $passwordStore;
+            $dataArr['storeId'].
+            $dataArr['orderId'].
+            $amountStr.
+            $dataArr['currency'].
+            $dataArr['partsCount'].
+            $dataArr['merchantType'].
+            $dataArr['1responseUrl'].
+            $dataArr['redirectUrl'].
+            $productsString.
+            $passwordStore;
 
-         $signature = base64_encode(hex2bin(SHA1($signatureStr)));
+        $signature = base64_encode(hex2bin(SHA1($signatureStr)));
 
 //         print_r($productsString);exit;
-         return $signature;
+
+ return $signature;
     }
 
     private function generateOrderId($orderId,$length = 128){
-      $chars = 'abdefhiknrstyzABDEFGHKNQRSTYZ23456789';
-      $numChars = strlen($chars);
-      $string = '';
-      for ($i = 0; $i < $length; $i++) {
-        $string .= substr($chars, rand(1, $numChars) - 1, 1);
-      }
+        $chars = 'abdefhiknrstyzABDEFGHKNQRSTYZ23456789';
+        $numChars = strlen($chars);
+        $string = '';
+        for ($i = 0; $i < $length; $i++) {
+            $string .= substr($chars, rand(1, $numChars) - 1, 1);
+        }
 
-      $stringRes = substr($string,0,(int)strlen($string)-(int)strlen('_'.$orderId)).'_'.$orderId;
+        $stringRes = substr($string,0,(int)strlen($string)-(int)strlen('_'.$orderId)).'_'.$orderId;
 
-      return $stringRes;
+        return $stringRes;
     }
 
     private function curlPostWithData($url, $request)
     {
-    try{
-        $curl = curl_init($url);
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $request);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_HEADER, 0);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array('Accept: application/json','Accept-Encoding: UTF-8','Content-Type: application/json; charset=UTF-8'));
-        curl_setopt($curl, CURLOPT_TIMEOUT, 30);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        try{
+            $curl = curl_init($url);
+            curl_setopt($curl, CURLOPT_POST, true);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $request);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_HEADER, 0);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, array('Accept: application/json','Accept-Encoding: UTF-8','Content-Type: application/json; charset=UTF-8'));
+            curl_setopt($curl, CURLOPT_TIMEOUT, 30);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 
-        //execute curl
-        $response = curl_exec($curl);
+            //execute curl
+            $response = curl_exec($curl);
 
 
+            //get execute result
+            $curl_errno = curl_errno($curl);
+            $curl_error = curl_error($curl);
+            $aInfo = @curl_getinfo($curl);
+            //close curl
+            curl_close($curl);
+            //analysis of the information received
+            $this->language->load('payment/privat_oplata');
+            if($curl_errno!=0){
+                $this->log->write('PRIVATBANK_PAYMENTPARTS_PP :: CURL failed ' . $curl_error . '(' . $curl_errno . ')');
+                return $this->language->get('error_curl');
+            }
+            if($aInfo["http_code"]!='200'){
+                $this->log->write('PRIVATBANK_PAYMENTPARTS_PP :: HTTP failed ' . $aInfo["http_code"] . '(' . $response . ')');
+                return $this->language->get('error_curl');
+            }
 
-        //get execute result
-        $curl_errno = curl_errno($curl);
-        $curl_error = curl_error($curl);
-        $aInfo = @curl_getinfo($curl);
-        //close curl
-        curl_close($curl);
-        //analysis of the information received
-        $this->language->load('payment/privat_oplata');
-        if($curl_errno!=0){
-            $this->log->write('PRIVATBANK_PAYMENTPARTS_PP :: CURL failed ' . $curl_error . '(' . $curl_errno . ')');
-            return $this->language->get('error_curl');
+
+            return json_decode($response,true);
+
+        } catch(Exception $e){
+            return false;
         }
-        if($aInfo["http_code"]!='200'){
-            $this->log->write('PRIVATBANK_PAYMENTPARTS_PP :: HTTP failed ' . $aInfo["http_code"] . '(' . $response . ')');
-            return $this->language->get('error_curl');
-        }
-
-
-        return json_decode($response,true);
-
-    } catch(Exception $e){
-        return false;
-    }
     }
 
     private function clearCartOnSuccess($order_id){
@@ -231,7 +236,7 @@ class ControllerPaymentprivatoplata extends Controller {
             $data_deal['orderId'] = $this->generateOrderId($order_info['order_id']);
             $data_deal['amount'] = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false);
             $data_deal['currency'] = $order_info['currency_code'];
-            $data_deal['partsCount'] = $this->request->post['partsCount'];
+            $data_deal['partsCount'] = "6";//$this->request->post['partsCount'];
             $data_deal['merchantType'] = 'PP';
 
             $data_deal['products'] = array();
@@ -240,11 +245,13 @@ class ControllerPaymentprivatoplata extends Controller {
                 $data_deal['products'][] = array(
                     'name'     => htmlspecialchars($product['name']),
                     'count' => $product['quantity'],
-                    'price'    => $this->currency->format($product['price'], $order_info['currency_code'], $order_info['currency_value'], false)
+                    'price'    => $this->currency->format($product['price'],$order_info['currency_code'], $order_info['currency_value'], false)
                 );
             }
 
+
             //add shipped in products
+            /* Доставка (расчет) - работает криво
             if(!empty($this->session->data['shipping_method']) && count($this->session->data['shipping_method'])>0){
                 $data_deal['products'][] = array(
                     'name'     => htmlspecialchars($this->session->data['shipping_method']['title']),
@@ -252,9 +259,11 @@ class ControllerPaymentprivatoplata extends Controller {
                     'price'    => $this->currency->format($this->session->data['shipping_method']['cost'], $order_info['currency_code'], false, false)
                 );
             }
+            */
             //End add shipped in products
 
-            $data_deal['responseUrl'] = $this->url->link('payment/privat_oplata/callback', '', 'SSL');
+
+            $data_deal['1responseUrl'] = $this->url->link('checkout/success', '', 'SSL');
 //            $data_deal['responseUrl'] =  $this->url->link('checkout/success');
             $data_deal['redirectUrl'] = $this->url->link('checkout/checkout', '', 'SSL');
 //            $data_deal['redirectUrl'] = $this->url->link('checkout/success');
@@ -264,10 +273,13 @@ class ControllerPaymentprivatoplata extends Controller {
         //End create arr to request Deal
 
         //request url for create Deal
-        $requestDial = json_encode($data_deal);
+       $requestDial = json_encode($data_deal);
+
+        var_dump($requestDial);
         $url = 'https://payparts2.privatbank.ua/ipp/v2/payment/create';
 
         $responseResDeal = $this->curlPostWithData($url,$requestDial);
+
 
         if(is_array($responseResDeal)){
             if(strcmp($responseResDeal['state'], 'FAIL') == 0){
@@ -276,6 +288,7 @@ class ControllerPaymentprivatoplata extends Controller {
             echo  json_encode($responseResDeal);
         } else {
             echo json_encode(array('state'=>'sys_error','message'=>$responseResDeal));
+
         }
 
 //        print_r($responseResDeal);exit;
@@ -285,12 +298,16 @@ class ControllerPaymentprivatoplata extends Controller {
 
     public function callback() {
         $requestPostRaw = file_get_contents('php://input');
+
         $requestArr = json_decode(trim($requestPostRaw),true);
+
 //        print_r($requestArr);exit;
 
         $this->load->model('checkout/order');
 
         $orderIdArr = explode('_',$requestArr['orderId']);
+
+
         $order_id = $orderIdArr[1];
         $comment = $requestArr['message'];
         $localAnswerSignature = $this->generateAnswerSignature ($requestArr);
@@ -299,22 +316,22 @@ class ControllerPaymentprivatoplata extends Controller {
         if ($order_info) {
             if (strcmp($requestArr['signature'], $localAnswerSignature) == 0) {
                 switch($requestArr['paymentState']) {
-                  case 'SUCCESS':
-                      $order_status_id = $this->config->get('privatbank_paymentparts_pp_completed_status_id');
-    //                  header('Location: '.$this->url->link('checkout/success'));
-                      $this->clearCartOnSuccess($order_id);
-                      break;
-                  case 'CANCELED':
-                      $order_status_id = $this->config->get('privatbank_paymentparts_pp_canceled_status_id');
-                      break;
-                  case 'FAIL':
-                      $order_status_id = $this->config->get('privatbank_paymentparts_pp_failed_status_id');
-                      $this->log->write('PRIVATBANK_PAYMENTPARTS_PP :: PAYMENT FAIL!  ORDER_ID:'.$order_id .' MESSAGE:'. $requestArr['message']);
-                      break;
-                  case 'REJECTED':
-                      $order_status_id = $this->config->get('privatbank_paymentparts_pp_rejected_status_id');
-                      $this->log->write('PRIVATBANK_PAYMENTPARTS_PP :: PAYMENT REJECTED!  ORDER_ID:'.$order_id .' MESSAGE:'. $requestArr['message']);
-                      break;
+                    case 'SUCCESS':
+                        $order_status_id = $this->config->get('privatbank_paymentparts_pp_completed_status_id');
+                        //                  header('Location: '.$this->url->link('checkout/success'));
+                        $this->clearCartOnSuccess($order_id);
+                        break;
+                    case 'CANCELED':
+                        $order_status_id = $this->config->get('privatbank_paymentparts_pp_canceled_status_id');
+                        break;
+                    case 'FAIL':
+                        $order_status_id = $this->config->get('privatbank_paymentparts_pp_failed_status_id');
+                        $this->log->write('PRIVATBANK_PAYMENTPARTS_PP :: PAYMENT FAIL!  ORDER_ID:'.$order_id .' MESSAGE:'. $requestArr['message']);
+                        break;
+                    case 'REJECTED':
+                        $order_status_id = $this->config->get('privatbank_paymentparts_pp_rejected_status_id');
+                        $this->log->write('PRIVATBANK_PAYMENTPARTS_PP :: PAYMENT REJECTED!  ORDER_ID:'.$order_id .' MESSAGE:'. $requestArr['message']);
+                        break;
                 }
 
                 $this->model_checkout_order->addOrderHistory($order_id, $order_status_id, $comment);
