@@ -51,11 +51,6 @@ class ControllerPaymentprivatoplata extends Controller {
             }
         }
         $this->render();
-
-
-
-
-
     }
 
     private function generateAnswerSignature ($dataAnsweArr){
