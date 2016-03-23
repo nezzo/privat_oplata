@@ -2,10 +2,11 @@
 class ControllerPaymentprivatoplata extends Controller {
     public function index() {
         $this->language->load('payment/privat_oplata');
+        $this->load->model('payment/privat_oplata');
 
-        // $this->callback();
+        // $this->sendDataDeal();
+        $data['action'] ='index.php?route=payment/privat_oplata/sendDataDeal'; //$this->url->link('payment/privat_oplata/sendDataDeal', '', 'SSL');
 
-        $this->sendDataDeal();
 
         //        $data['text_testmode'] = $this->language->get('text_testmode');
         $data['button_confirm'] = $this->language->get('button_confirm');
@@ -13,7 +14,7 @@ class ControllerPaymentprivatoplata extends Controller {
         /* в эту переменную нужно передать количесто (насколько будет делиться платеж)*/
         $data['text_label_partsCount'] = $this->language->get('text_label_partsCount');
 
-        $partsCount = $this->config->get('privatbank_paymentparts_pp_merchantType');
+        $partsCount = "PP";//$this->config->get('privatbank_paymentparts_pp_merchantType');
         $partsCountArr = array();
         for($i=$partsCount;$i>=2;$i--){
             $partsCountArr[] = $i;
@@ -21,6 +22,7 @@ class ControllerPaymentprivatoplata extends Controller {
 
         //В эту переменную передаем как именно способ платим "PP"
         $data['partsCounts'] = $partsCountArr;
+
 
 
 //        $data['testmode'] = $this->config->get('pp_standard_test');
@@ -33,8 +35,6 @@ class ControllerPaymentprivatoplata extends Controller {
             $data['action'] = 'https://brtp.test.it.loc/ipp/';
         }
 
-
-
         $this->load->model('checkout/order');
 
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
@@ -42,7 +42,7 @@ class ControllerPaymentprivatoplata extends Controller {
         if ($order_info) {
 
             if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/privat_oplata.tpl')) {
-                 //  return $this->template = $this->config->get('config_template') . '/template/payment/privat_oplata.tpl';
+                //  return $this->template = $this->config->get('config_template') . 'default/template/payment/privat_oplata.tpl';
 
                 $this->template ='default/template/payment/privat_oplata.tpl';
 
@@ -113,11 +113,12 @@ class ControllerPaymentprivatoplata extends Controller {
             $dataArr['currency'].
             $dataArr['partsCount'].
             $dataArr['merchantType'].
-            $dataArr['1responseUrl'].
+            $dataArr['responseUrl'].
             $dataArr['redirectUrl'].
             $productsString.
             $passwordStore;
 
+        //вывод сигнатуры вместе с продуктом
         $signature = base64_encode(hex2bin(SHA1($signatureStr)));
 
 //         print_r($productsString);exit;
@@ -140,6 +141,7 @@ class ControllerPaymentprivatoplata extends Controller {
 
     private function curlPostWithData($url, $request)
     {
+
         try{
             $curl = curl_init($url);
             curl_setopt($curl, CURLOPT_POST, true);
@@ -152,18 +154,21 @@ class ControllerPaymentprivatoplata extends Controller {
 
             //execute curl
             $response = curl_exec($curl);
-
+            //var_dump($response);
 
             //get execute result
             $curl_errno = curl_errno($curl);
             $curl_error = curl_error($curl);
             $aInfo = @curl_getinfo($curl);
+
+
             //close curl
             curl_close($curl);
             //analysis of the information received
             $this->language->load('payment/privat_oplata');
             if($curl_errno!=0){
                 $this->log->write('PRIVATBANK_PAYMENTPARTS_PP :: CURL failed ' . $curl_error . '(' . $curl_errno . ')');
+
                 return $this->language->get('error_curl');
             }
             if($aInfo["http_code"]!='200'){
@@ -171,6 +176,8 @@ class ControllerPaymentprivatoplata extends Controller {
                 return $this->language->get('error_curl');
             }
 
+                $a = json_decode($response,true);
+           // var_dump($a);
 
             return json_decode($response,true);
 
@@ -220,9 +227,11 @@ class ControllerPaymentprivatoplata extends Controller {
     }
 
     public function sendDataDeal(){
+        $order_id = $this->session->data['order_id'];
 
         //create arr to request Deal
         $this->load->model('checkout/order');
+
 
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
@@ -232,7 +241,8 @@ class ControllerPaymentprivatoplata extends Controller {
             $data_deal['amount'] = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false);
             $data_deal['currency'] = $order_info['currency_code'];
             $data_deal['partsCount'] = "6";//$this->request->post['partsCount'];
-            $data_deal['merchantType'] = 'PP';
+            $data_deal['merchantType'] = "PP";
+
 
             $data_deal['products'] = array();
 
@@ -258,22 +268,25 @@ class ControllerPaymentprivatoplata extends Controller {
             //End add shipped in products
 
 
-            $data_deal['1responseUrl'] = $this->url->link('checkout/success', '', 'SSL');
+            $data_deal['responseUrl'] = $this->url->link('payment/privat_oplata/callback', '', 'SSL');
 //            $data_deal['responseUrl'] =  $this->url->link('checkout/success');
             $data_deal['redirectUrl'] = $this->url->link('checkout/checkout', '', 'SSL');
 //            $data_deal['redirectUrl'] = $this->url->link('checkout/success');
 //            $data_deal['redirectUrl'] = $this->url->link('payment/privatbank_paymentparts_pp/callback', '', 'SSL');
             $data_deal['signature'] = $this->generateSignature($data_deal);
+
         }
         //End create arr to request Deal
 
         //request url for create Deal
        $requestDial = json_encode($data_deal);
 
-        var_dump($requestDial);
+       //var_dump($requestDial);
         $url = 'https://payparts2.privatbank.ua/ipp/v2/payment/create';
 
         $responseResDeal = $this->curlPostWithData($url,$requestDial);
+       // var_dump($responseResDeal);
+
 
 
         if(is_array($responseResDeal)){
@@ -282,6 +295,7 @@ class ControllerPaymentprivatoplata extends Controller {
             }
             echo  json_encode($responseResDeal);
         } else {
+
             echo json_encode(array('state'=>'sys_error','message'=>$responseResDeal));
 
         }

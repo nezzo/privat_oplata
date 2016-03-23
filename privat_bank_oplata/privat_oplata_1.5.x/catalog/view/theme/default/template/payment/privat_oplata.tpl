@@ -1,6 +1,3 @@
-<?php //if ($testmode) { ?>
-<!--  <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> <?php echo $text_testmode; ?></div>-->
-<?php //} ?>
 <div class="pull-right">
   <div class="row" style="margin-right: 1px;">
     <form id="privatbank_paymentparts_pp_checkout" role="form" class="form-inline">
@@ -23,7 +20,7 @@
 
       $.ajax({
         type: 'POST',
-        url: '<?php echo $action;?>',
+        url: 'index.php?route=payment/privat_oplata/sendDataDeal',
         dataType: 'json',
         data: partsCounArr,
         success: function(data){ // сoбытиe пoслe удaчнoгo oбрaщeния к сeрвeру и пoлучeния oтвeтa
