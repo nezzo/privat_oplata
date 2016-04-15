@@ -43,7 +43,7 @@
 								<h5 class="site-description"><?php echo esc_attr(bloginfo('description')); ?></h5>
 							<?php } ?>
 						<?php } else { ?>
-							<a href="<?php echo esc_url( home_url( '/' ) ) ?>"><?php echo "Prop in China";//esc_attr(bloginfo( 'name' )); ?></a>
+							<a href="<?php echo esc_url( home_url( '/' ) ) ?>"><img src="/wp-content/themes/chine-prop/images/Primary_logo.png" /> <!--<?php echo "Мы лучшие";//esc_attr(bloginfo( 'name' )); ?>--></a>
 							<?php if ($modality_theme_options['enable_logo_tagline'] == '1' ) { ?> 
 								<h5 class="site-description"><?php echo esc_attr(bloginfo('description')); ?></h5>
 							<?php } ?>

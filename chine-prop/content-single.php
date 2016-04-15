@@ -8,16 +8,20 @@
 		<div id="post-body">
 			<div <?php post_class('post-single'); ?>>
 				<h1 id="post-title" <?php post_class('entry-title'); ?>><?php the_title(); ?> </h1>
+				
 			<?php 
 			$modality_theme_options = modality_get_options( 'modality_theme_options' );
+			
 			if ($modality_theme_options['breadcrumbs'] == '1') { ?>
 				<div class="breadcrumbs">
 					<div class="breadcrumbs-wrap"> 
-						<?php get_template_part( 'breadcrumbs'); ?>
+					<div class="data_publ"><p>Дата публикации: <?php the_date(); ?></p></div>
+						<?php //get_template_part( 'breadcrumbs'); ?>
 					</div><!--breadcrumbs-wrap-->
+					
 				</div><!--breadcrumbs-->
 			<?php } ?>
-				<?php if ($modality_theme_options['post_info'] == 'above') { get_template_part('post','info');}
+				<?php  if ($modality_theme_options['post_info'] == 'above') { get_template_part('post','info');}
 
 					if ( has_post_thumbnail() ) { 
  

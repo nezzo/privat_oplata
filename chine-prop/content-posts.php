@@ -6,20 +6,27 @@
 $modality_theme_options = modality_get_options( 'modality_theme_options' );
 $blog_posts_home_image = $modality_theme_options['blog_posts_home_image'];
 $blog_posts_top_image = $modality_theme_options['blog_posts_top_image'];
+
 if ( have_posts() ) : ?>
 <div class="clear"></div>
 <?php if ($blog_posts_home_image != '') { ?>
 	<div class="home-blog" style="background: url(<?php echo esc_url($blog_posts_home_image); ?>) 50% 0 no-repeat fixed; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover;">	
 <?php } else { ?>
 	<div class="home-blog">	
+	<div class="slider">
+		<?php news_unslider_slider();?>
+		</div>
 <?php } 
 	 if ($blog_posts_top_image !='') { ?>
-	<div class="blog-top-image" style="background: url(<?php echo esc_url($blog_posts_top_image); ?>) 50% 0 no-repeat fixed; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover;">
-<?php } else { ?>
-		<div class="blog-top-image">
+	
+	
+	<?php } else { ?>
+		
+		
 <?php } ?>
+		  
 			<div>
-				<?php get_template_part( 'title','section'); ?>
+				
 			</div>
 		</div>
 	<div class="content-posts-wrap">
@@ -46,12 +53,7 @@ if ( have_posts() ) : ?>
 				</div><!--posts-body-->
 			</div><!--posts-wrapper-->
 		</div><!--standard-posts-wrapper-->
-		<div class="sidebar-frame">
-			<div class="sidebar">
-				<?php get_sidebar(); ?>
-			</div>
-		</div>
-	</div>
+		
 	<?php 
 else: ?>
 	<?php get_template_part( 'content', 'none' );

@@ -6,6 +6,24 @@
  * Check for featured images 
  */ 
 $modality_theme_options = modality_get_options( 'modality_theme_options' );
+
+
+if ( $modality_theme_options['blog_content'] == 'excerpt') { ?>
+	<div class = "text-holder">
+		<a class="post-title" href="<?php esc_url(the_permalink()); ?>"><h3 <?php post_class('entry-title'); ?>><?php the_title(); ?></h3></a>
+			
+	</div>
+<?php } else { ?>
+	<div class = "text-holder-full">
+		<a class="post-title" href="<?php esc_url(the_permalink()); ?>"><h3 <?php post_class('entry-title'); ?>><?php the_title(); ?></h3></a>
+		
+	</div>	
+<?php } ?>
+
+
+
+<?php
+
 if ( $modality_theme_options['blog_content'] == 'excerpt') {
 	if (has_post_format( 'gallery' )) {
 	
@@ -32,15 +50,13 @@ if ( $modality_theme_options['blog_content'] == 'excerpt') {
 
 if ( $modality_theme_options['blog_content'] == 'excerpt') { ?>
 	<div class = "text-holder">
-		<a class="post-title" href="<?php esc_url(the_permalink()); ?>"><h3 <?php post_class('entry-title'); ?>><?php the_title(); ?></h3></a>
-			<?php 
+			<?php
 			the_excerpt(__( 'Continue Reading...', 'modality' ) ); 
 		  	get_template_part( 'post', 'meta'); ?>
 	</div>
 <?php } else { ?>
 	<div class = "text-holder-full">
-		<a class="post-title" href="<?php esc_url(the_permalink()); ?>"><h3 <?php post_class('entry-title'); ?>><?php the_title(); ?></h3></a>
-		
+
 		<?php if ($modality_theme_options['post_info'] == 'above') { get_template_part('post','info');}
 			
 			if (has_post_format( 'gallery' )) {

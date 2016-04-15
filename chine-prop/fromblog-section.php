@@ -1,15 +1,15 @@
 <?php
 /**
 
-Файл отвечает за блок "Есть вопрос ?"
+Файл отвечает за блок "Обратная связь"
  * @package Modality
  */
 $modality_theme_options = modality_get_options( 'modality_theme_options' );
 $blog_bg_image = $modality_theme_options['blog_bg_image'];
 $blog_cat = $modality_theme_options['blog_cat'];
 $num_posts = $modality_theme_options['num_posts'];
-$text_title = "Есть вопросы?";
-$text = "Мы с радостью на них ответим. Спрашивать можно и нужно!";
+$text_title = "Обратная связь";
+$text = "Все предложения о сотрудничестве, вопросы по работе с проектом присылайте через форму обратной связи.";
 ?>
 
 
@@ -26,7 +26,7 @@ $text = "Мы с радостью на них ответим. Спрашиват
 		 
 		 </div>
 		 <div class="col-md-4">
-		 <a class="btn btn-default quest-btn" role="button" href="#"><div class="read_more_text qu">Напишите нам</div></a>
+		 <a class="btn btn-default quest-btn" role="button" href="http://www.stop-lossov.net/?page_id=32"><div class="read_more_text qu">Напишите нам</div></a>
 		 </div>
 	   </div>	
 		</div>
